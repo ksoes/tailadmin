@@ -85,9 +85,9 @@ export default function SignInForm() {
               <div className="space-y-6">
                 <div>
                   <Label>
-                    이메일 <span className="text-error-500">*</span>{" "}
+                    아이디 <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" type="email" />
+                  <Input placeholder="Enter your id" type="id" />
                 </div>
                 <div>
                   <Label>
