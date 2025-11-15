@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 /*
-* API ROUTE 생성
+* API Route 생성
 * */
 export async function POST(req: Request) {
     const body = await req.json();
@@ -14,14 +14,19 @@ export async function POST(req: Request) {
         );
     }
 
-    const response = await fetch("http://localhost:8080/api/v1/signup", {
+    return login(body);
+}
+
+async function login({id, password}: {id: string, password: string}) {
+    const response = await fetch("http://localhost:8080/api/v1/login", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
+            "Content-type": "application/json",
         },
-        body: JSON.stringify({id, password})
+        body: JSON.stringify({id, password}),
     });
 
     const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    console.log(data);
+    return NextResponse.json(data, {status: response.status});
 }

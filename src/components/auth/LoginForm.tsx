@@ -1,15 +1,60 @@
 "use client";
-import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
+import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, {SetStateAction, useState} from "react";
+import {useRouter} from "next/navigation";
+import AlertModal from "@/components/common/AlertModal";
+import {useModal} from "@/hooks/useModal";
 
-export default function SignInForm() {
+export default function LoginForm() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  // modal
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+
+
+  const showAlert = (type:SetStateAction<"success" | "error" | "warning" | "info">, title:string, message:string) => {
+    setAlertType(type);
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertOpen(true);
+  };
+
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!id || !password) {
+      showAlert('warning', '입력 오류', '아이디와 비밀번호를 입력하세요.');
+      return ;
+    }
+
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({id, password})
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showAlert('error', '입력 오류', data.message);
+      return ;
+    }
+
+    router.push('/dashboard');
+  };
+
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       {/*<div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -81,13 +126,17 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>*/}
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div>
                   <Label>
                     아이디 <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="Enter your id" type="id" />
+                  <Input
+                      placeholder="Enter your id"
+                      type="id"
+                      onChange={(e) => setId(e.target.value)}
+                  />
                 </div>
                 <div>
                   <Label>
@@ -97,6 +146,7 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -146,6 +196,15 @@ export default function SignInForm() {
           </div>
         </div>
       </div>
+      {/* 알림창 */}
+      {alertOpen && (
+          <AlertModal
+              open={alertOpen}
+              title={alertTitle}
+              message={alertMessage}
+              onClose={() => setAlertOpen(false)}
+          ></AlertModal>
+      )}
     </div>
   );
 }
