@@ -9,6 +9,7 @@ interface AlertModalProps {
     title: string;
     message: string;
     onClose: () => void;
+    onConfirm: (() => void) | null;
 }
 
 const typeStyles = {
@@ -24,6 +25,7 @@ export default function AlertModal({
     title,
     message,
     onClose,
+    onConfirm,
                                    }: AlertModalProps) {
     return (
         <Modal isOpen={open} onClose={onClose} className="max-w-[600px] max-h-[600px]">
@@ -39,7 +41,10 @@ export default function AlertModal({
                 <div className="flex justify-center mt-6">
                     <button
                         className="mt-6 w-1/8 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        onClick={onClose}
+                        onClick={() => {
+                            onClose();
+                            onConfirm?.(); // 콜백 있으면 실행
+                        }}
                     >
                         확인
                     </button>

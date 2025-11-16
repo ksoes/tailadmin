@@ -7,7 +7,6 @@ import Link from "next/link";
 import React, {SetStateAction, useState} from "react";
 import {useRouter} from "next/navigation";
 import AlertModal from "@/components/common/AlertModal";
-import {useModal} from "@/hooks/useModal";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -21,6 +20,7 @@ export default function LoginForm() {
   const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [alertConfirm, setAlertConfirm] = useState<(() => void) | null>(null);
 
 
   const showAlert = (type:SetStateAction<"success" | "error" | "warning" | "info">, title:string, message:string) => {
@@ -203,6 +203,7 @@ export default function LoginForm() {
               title={alertTitle}
               message={alertMessage}
               onClose={() => setAlertOpen(false)}
+              onConfirm={alertConfirm}
           ></AlertModal>
       )}
     </div>

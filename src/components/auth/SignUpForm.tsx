@@ -4,8 +4,9 @@ import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, {SetStateAction, useState} from "react";
 import {useRouter} from "next/navigation";
+import AlertModal from "@/components/common/AlertModal";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -13,6 +14,25 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  // modal
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertConfirm, setAlertConfirm] = useState<(() => void) | null>(null);
+
+  const showAlert = (
+      type:SetStateAction<"success" | "error" | "warning" | "info">,
+      title:string,
+      message:string,
+      onConfirm?: () => void
+  ) => {
+    setAlertType(type);
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertOpen(true);
+    setAlertConfirm(() => onConfirm || null);
+  };
 
   const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,12 +46,13 @@ export default function SignUpForm() {
     const data = await response.json();
 
     if (!response.ok) {
-      alert(data.message);
+      showAlert('error', '입력 오류', data.message);
       return;
     }
 
-    alert('회원가입 완료');
-    router.push('/login');
+    showAlert('success', '성공', data.message, () => {
+      router.push('/login');
+    });
   };
 
   return (
@@ -102,6 +123,16 @@ export default function SignUpForm() {
           </div>
         </div>
       </div>
+      {/* 알림창 */}
+      {alertOpen && (
+          <AlertModal
+              open={alertOpen}
+              title={alertTitle}
+              message={alertMessage}
+              onClose={() => setAlertOpen(false)}
+              onConfirm={alertConfirm}
+          ></AlertModal>
+      )}
     </div>
   );
 }
